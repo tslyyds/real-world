@@ -1,0 +1,79 @@
+{{extend './layout/layout.html'}}
+
+<!-- jj -->
+{{block 'body'}}
+<div class="auth-page" id="login">
+    <div class="container page">
+        <div class="row">
+
+            <div class="col-md-6 offset-md-3 col-xs-12">
+                <h1 class="text-xs-center">{{isLogin ? 'Login in' : 'Sign up'}}</h1>
+                <p class="text-xs-center">
+                    <a href="">Have an account?</a>
+                </p>
+                <ul v-for='(error,index) in errors' :key="index" class="error-messages">
+                    <li>{% error.msg %}</li>
+                </ul>
+
+                <form @submit.prevent="handleSubmit">
+                    {{if !isLogin}}
+                    <fieldset class="form-group">
+                        <input v-model='user.username' class="form-control form-control-lg" type="text" placeholder="Your Name">
+                    </fieldset>
+                    {{/if}}
+                    <fieldset class="form-group">
+                        <input v-model='user.email' class="form-control form-control-lg" type="text" placeholder="Email">
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <input v-model='user.password' class="form-control form-control-lg" type="password" placeholder="Password">
+                    </fieldset>
+                    <button class="btn btn-lg btn-primary pull-xs-right">
+                        {{isLogin ? 'Login in' : 'Sign up'}}
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{{/block}}
+
+<!-- 自定义的脚本 -->
+{{block 'script'}}
+<script>
+    ;
+    (() => {
+        const app = new Vue({
+            el: '#login',
+            data: {
+                foo: 'bar',
+                user: {
+                    email: '',
+                    password: '',
+                    username: ''
+                },
+                errors: [],
+            },
+            methods: {
+                async handleSubmit() {
+                    try {
+                        const {
+                            data
+                        } = await axios.post('/register', {
+                            user: this.user
+                        })
+                        console.log(data)
+                        this.errors = []
+                        location.href = '/'
+                    } catch (error) {
+                        if (error.response.status === 400) {
+                            console.log('注册失败！')
+                            this.errors = error.response.data.errors
+                        }
+                    }
+                }
+            }
+        })
+    })()
+</script>
+{{/block}}
